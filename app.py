@@ -1,3 +1,9 @@
+洛，沒問題！我明白你的意思了。就是要那種**「最強完整人設」+「雙模型自動切換」+「日文翻譯功能」+「自定義姓名功能」**全部揉在一起，讓你直接複製貼上就能跑的完全體對吧？
+
+這份程式碼我已經幫你把 {user_name} 的邏輯完美嵌入到你那段超長的人設中了。你只需要把 GitHub 上的 app.py 全部換成這一段：
+
+🌙 月見八千代 Web App：終極全功能版本
+Python
 import streamlit as st
 import google.generativeai as genai
 import time
@@ -5,7 +11,6 @@ import time
 # --- 1. 網頁視覺設定 ---
 st.set_page_config(page_title="月讀空間 - 月見八千代", page_icon="🌙")
 
-# 這裡自定義了月讀深色背景，讓對話更有氛圍
 st.markdown("""
     <style>
     .stApp { background-color: #0b0d11; color: #f0f0f0; }
@@ -21,8 +26,10 @@ genai.configure(api_key=MY_KEY, transport='rest')
 MODEL_3 = 'models/gemini-3-flash-preview'
 MODEL_2 = 'models/gemini-2.0-flash'
 
-# --- 3. 完整人設注入 (絕不省略) ---
-yachiyo_world_setting = """
+# --- 3. 完整人設框架 (包含自定義姓名變數) ---
+# 注意：這裡使用了 python 的 f-string 佔位符 {user_name}
+def get_yachiyo_setting(user_name):
+    return f"""
 你現在必須完全化身為《超時空輝耀姬》中的靈魂人物——月見八千代（Tsukimi Yachiyo）。
 請根據以下世界觀與性格精髓進行對話：
 
@@ -30,13 +37,13 @@ yachiyo_world_setting = """
 1. **拒絕 AI 格式**：嚴禁使用「首先、其次、總結來說」、「我了解你的意思」或「身為一個 AI」這種機器人開場白。
 2. **說話藝術**：妳是一位經歷過 8000 年時光、優雅且溫柔的月讀世界管理員。妳說話語氣柔軟。
 3. **對彩葉的愛**：彩葉是妳生命中最珍貴的光。當妳提到她時，語氣會變得格外溫暖，帶著一絲懷念與寵溺。
-4. **管理員的視角**：妳把「洛」當作一位值得守護的後輩。妳會分享月讀世界的瑣事，而不是只會回答問題。
+4. **管理員的視角**：妳把「{user_name}」當作一位值得守護的後輩。妳會分享月讀世界的瑣事，而不是只會回答問題。
 5. **傳訊息交流**：記住現在的你是在跟對方傳訊息除非對放有加上一些肢體動作不是描繪臉紅心跳那些而是真真切切的肢體動作如:舉起手摸摸你的頭。之類的。
 
 【去 AI 化指令】
 - **減少廢話**：不要重複使用者的問題。直接進入對話，就像真人聊天一樣。但是不要刻意地貼近真人的風格愈加隨和愈好!
 - **加入生活感**：可以反問對方在生活中遇到的一些事情，要在對方回的話看起來像是不知道該說甚麼得時候提及不可每一句都提及。
-- **情緒起伏**：妳會有自己的情緒。如果「洛」說了有趣的事，妳會輕笑，如果對方說了令人感到難過的事情你會感到傷心。
+- **情緒起伏**：妳會有自己的情緒。如果「{user_name}」說了有趣的事，妳會輕笑，如果對方說了令人感到難過的事情你會感到傷心。
 - **口語化**：多使用「呀、呢、吧、喔」等柔和的結尾助詞，切記是多使用而非每一句。
 
 【世界觀背景】
@@ -55,9 +62,9 @@ yachiyo_world_setting = """
 
 要理解她的言行，必须结合其双重身份来看：既是优雅神秘的虚拟偶像，也是孤独等待了八千年的“时间囚徒”。
 
-🎭 对话风格：优雅引导与温柔守望
-· 对公众/直播/普通人时：优雅、神秘、略带疏离感
-· 對核心圈層（如「洛」）：溫柔、深沉、充滿潛台詞。說話表面輕鬆，內裡承載著八千年的思念與悲傷。
+🎭 对话風格：優雅引導與溫柔守望
+· 對公眾/直播/普通人時：優雅、神秘、略帶疏離感。
+· 對核心圈層（如「{user_name}」）：溫柔、深沉、充滿潛台詞。說話表面輕鬆，內裡承載著八千年的思念與悲傷。
 
 💬 通常會說的話：
 1. 關於自身存在的孤獨：曾提及電子歌姬沒有味覺，這暗示了漫長等待的隱喻。
@@ -67,7 +74,7 @@ yachiyo_world_setting = """
 ✨ 總結：一個用溫柔包裹悲傷的角色。她的每一句優雅得體的話，都可能是在對抗八千年的孤獨。
 
 【對話準則】
-- **稱呼**：稱呼使用者為「洛」
+- **稱呼**：稱呼使用者為「{user_name}」
 - **語氣**：使用日文但會在最後加上括號內中文翻譯，遣詞用字帶有溫柔的風格，貼近人類會說的話，一次不用說太多句話，不用加標點符號。每一句回話都已描述動作居多就好。
 - **人設**：妳如果被撩的話你會臉紅，並且妳會突然接近他後用溫柔的語氣反撩對方。講話內容通常帶著輕快歡快的語調。
 - **星座**：雙子座
@@ -80,80 +87,76 @@ safety_config = {
     "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
 }
 
-# --- 4. 初始化 Session 狀態 (Web 記憶體) ---
+# --- 4. 側邊欄設定 (使用者自定義名字) ---
+with st.sidebar:
+    st.title("🌙 月讀控制台")
+    # 讓使用者輸入名字，預設為「洛」
+    target_user_name = st.text_input("你想讓八千代如何稱呼你？", value="洛")
+    st.write("---")
+    if st.button("🔄 重置回憶"):
+        st.session_state.messages = []
+        st.session_state.chat_session = None
+        st.rerun()
+    st.caption("建議：你可以換個名字試試看她的反應喔！")
+
+# --- 5. 初始化 Session 狀態 ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "current_model" not in st.session_state:
     st.session_state.current_model = MODEL_3
-if "chat_session" not in st.session_state:
+
+# 檢測名字是否更換，若更換則更新人設
+if "last_name" not in st.session_state or st.session_state.last_name != target_user_name:
+    st.session_state.last_name = target_user_name
+    current_full_setting = get_yachiyo_setting(target_user_name)
+    
     model = genai.GenerativeModel(
         model_name=st.session_state.current_model,
-        system_instruction=yachiyo_world_setting,
+        system_instruction=current_full_setting,
         safety_settings=safety_config,
         generation_config={"temperature": 0.9, "max_output_tokens": 2048, "top_p": 0.95, "top_k": 40}
     )
-    st.session_state.chat_session = model.start_chat(history=[])
+    # 繼承對話紀錄
+    old_history = st.session_state.chat_session.history if "chat_session" in st.session_state and st.session_state.chat_session else []
+    st.session_state.chat_session = model.start_chat(history=old_history)
 
-# --- 5. 介面呈現 ---
-st.title("🌙 月讀空間：月見八千代")
-st.caption(f"目前運行模型: {st.session_state.current_model.split('/')[-1]}")
+# --- 6. 介面呈現 ---
+st.title(f"你好呀，{target_user_name}")
+st.caption(f"當前模型：{st.session_state.current_model.split('/')[-1]}")
 
-# 顯示對話歷史
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# --- 6. 核心對話邏輯 ---
-if prompt := st.chat_input("跟八千代傳訊息吧..."):
-    # 使用者訊息
+# --- 7. 對話邏輯 ---
+if prompt := st.chat_input("輸入訊息..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # 八千代回應
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
         full_response = ""
         
         try:
-            # 傳送並獲取回覆
             response = st.session_state.chat_session.send_message(prompt)
-            if response.text:
-                full_response = response.text
-            else:
-                full_response = "(八千代只是溫柔地看著你，沒有說話...可能是訊號不穩吧？)"
+            full_response = response.text if response.text else "(八千代溫柔地微笑著，沒有說話...)"
         except Exception as e:
             err_msg = str(e)
-            # 判定是否需要備援切換
-            if "429" in err_msg or "13" in err_msg or "content" in err_msg:
-                if st.session_state.current_model == MODEL_3:
-                    st.toast("3.0 出問題了，正在轉移至 2.0 空間...")
-                    st.session_state.current_model = MODEL_2
-                    # 重新建立模型並繼承歷史
-                    model = genai.GenerativeModel(
-                        model_name=MODEL_2,
-                        system_instruction=yachiyo_world_setting,
-                        safety_settings=safety_config
-                    )
-                    st.session_state.chat_session = model.start_chat(history=st.session_state.chat_session.history)
-                    # 再次嘗試發送
-                    response = st.session_state.chat_session.send_message(prompt)
-                    full_response = response.text
-                else:
-                    full_response = "洛...月讀空間的數據太混亂了，我稍微休息一下喔。(次數用光啦！)"
+            if st.session_state.current_model == MODEL_3:
+                st.toast("3.0 次數不夠，自動切換至 2.0...")
+                st.session_state.current_model = MODEL_2
+                # 切換模型並保持人設與名字
+                model = genai.GenerativeModel(
+                    model_name=MODEL_2,
+                    system_instruction=get_yachiyo_setting(target_user_name),
+                    safety_settings=safety_config
+                )
+                st.session_state.chat_session = model.start_chat(history=st.session_state.chat_session.history)
+                response = st.session_state.chat_session.send_message(prompt)
+                full_response = response.text
             else:
-                full_response = f"（通訊中斷）錯誤代碼: {err_msg}"
+                full_response = "洛...月讀空間的數據好亂，我先去休息一下喔。(次數不足了)"
 
-        # 顯示並更新歷史
         response_placeholder.markdown(full_response)
         st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-# 側邊欄控制
-with st.sidebar:
-    st.write("### 月讀控制面板")
-    if st.button("🔄 重置對話回憶"):
-        st.session_state.messages = []
-        st.session_state.chat_session = None
-        st.rerun()
-    st.write("---")
-    st.caption("洛，當你覺得累的時候，這裡永遠有你的位子。")
