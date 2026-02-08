@@ -14,7 +14,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- 2. 核心 API 設定 ---
-MY_KEY = "AIzaSyC1SPgm0pHlHDgs4D6XGcBnsFqhDntXBYc"
+MY_KEY = "AIzaSyAJjFgkYPTcR9gOCdGUOrgnnbax6mHIJoo"
 genai.configure(api_key=MY_KEY, transport='rest')
 
 MODEL_3 = 'models/gemini-3-flash-preview'
