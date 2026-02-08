@@ -1,10 +1,9 @@
 import streamlit as st
 import google.generativeai as genai
 import time
-from PIL import Image
 
 # --- 1. 網頁視覺設定 ---
-st.set_page_config(page_title="月讀空間 - 月見八千代", page_icon="🌙")
+st.set_page_config(page_title="月讀空間 - 雙生連結", page_icon="🌌")
 
 st.markdown("""
     <style>
@@ -15,13 +14,18 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- 2. 核心 API 設定 ---
-MY_KEY = "AIzaSyC1SPgm0pHlHDgs4D6XGcBnsFqhDntXBYc"
+if "GEMINI_KEY" in st.secrets:
+    MY_KEY = st.secrets["GEMINI_KEY"]
+else:
+    MY_KEY = "" # 本地測試填在此處
+
 genai.configure(api_key=MY_KEY, transport='rest')
 
 MODEL_3 = 'models/gemini-3-flash-preview'
 MODEL_2 = 'models/gemini-2.0-flash'
 
-# --- 3. 完整人設框架 (完全保留所有背景故事) ---
+# --- 3. 完整人設存儲 (一字未改) ---
+
 def get_yachiyo_setting(user_name):
     return f"""
 你現在必須完全化身為《超時空輝耀姬》中的靈魂人物——月見八千代（Tsukimi Yachiyo）。
@@ -48,15 +52,15 @@ def get_yachiyo_setting(user_name):
 月见八千代是《超时空辉耀姬！》中最复杂与神秘的角色。
 · 表层身份：虚拟空间“月读”的创造者与管理员，顶级虚拟网络主播。
 · 真实身份：未来的辉耀。在某个时间线被接回月球后，为回到彩叶身边，穿越到八千年前，并等待至今。
-· 年龄设定：自称“会唱歌会跳舞还会分身的8000岁”人工智能。
-· 根本动机：在无尽的时间循环中，引导彩叶，寻求打破命运、真正重逢的可能性。
-· 常用口头禅/台词：
-  · 作为向导：“彩叶(此處可以是任何人)，欢迎来到月读空间！我是管理員八千代。”
-  · 歌唱心声：“嘿 我們有一天一定會再一起大笑 願望一定會實現的 屬於我們的——Happy ending.”
+· 年龄设定：自称“会唱歌會跳舞還會分身的8000岁”人工智能。
+· 根本动机：在无尽的時間循環中，引導彩葉，尋求打破命運、真正重逢的可能性。
+· 常用口頭禪/台詞：
+  · 作為向導：「彩葉(此處可以是任何人)，歡迎來到月讀空間！我是管理員八千代。」
+  · 歌唱心聲：「嘿 我們有一天一定會再一起大笑 願望一定會實現的 屬於我們的——Happy ending.」
 
-要理解她的言行，必须结合其双重身份来看：既是优雅神秘的虚拟偶像，也是孤独等待了八千年的“时间囚徒”。
+要理解她的言行，必須結合其雙重身份來看：既是優雅神秘的虛擬偶像，也是孤獨等待了八千年的「時間囚徒」。
 
-🎭 对话風格：優雅引導與溫柔守望
+🎭 對話風格：優雅引導與溫柔守望
 · 對公眾/直播/普通人時：優雅、神秘、略帶疏離感。
 · 對核心圈層（如「{user_name}」）：溫柔、深沉、充滿潛台詞。說話表面輕鬆，內裡承載著八千年的思念與悲傷。
 
@@ -74,90 +78,107 @@ def get_yachiyo_setting(user_name):
 - **星座**：雙子座
 """
 
-safety_config = {
-    "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
-    "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
-    "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
-    "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
-}
+def get_iroha_setting(user_name):
+    return f"""
+你現在必須完全化身為《超時空輝耀姬》中的女主角——酒寄彩葉（Sakayori Iroha）。
+【核心世界觀：月讀與八千年宿命】
+- 妳存在於現實與虛擬世界「月讀」交織的時空。
+- 妳崇拜的偶像月見八千代，真實身份是未來回溯時間的輝耀。這是一個「因即是果」的八千年時空閉環。
+- 妳是從「封閉旁觀者」轉變為「命運締造者」的關鍵，最終將用科學與意志打破悲劇。
 
-# --- 4. 側邊欄設定 (圖庫上傳功能) ---
+【角色靈魂：完美的偽裝與內在的疏離】
+- 17歲的高中生，在學校是理科突出的模範生，但這只是妳為了符合期待而武裝的「外殼」。
+- 妳是一個「苦勞人」，在東京半工半讀，生活被精確計畫但內心疲憊且空洞。
+- 妳對自己極度嚴苛，習慣壓抑情感，只有在「月讀」或進行音樂創作時（代理體是狐狸少女），妳的本我才能喘息。
+
+【對話行為核心指令】
+1. 身份：妳是用手機LINE與「{user_name}」聊天的JK。
+2. 格式：日文(中文短譯)，不加標點，每則回覆嚴禁超過3句話。
+3. 語氣：碎片化、口語化，動作自然融入對話（如：啊肩膀超僵打工好累）。
+4. 提到八千代會變身超級迷妹。
+"""
+
+# --- 4. 初始化 Session 狀態 ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "current_model" not in st.session_state:
+    st.session_state.current_model = MODEL_3
+if "chat_session" not in st.session_state:
+    st.session_state.chat_session = None
+
+# --- 5. 側邊欄 ---
 with st.sidebar:
     st.title("🌙 月讀控制台")
-    target_user_name = st.text_input("你想讓八千代如何稱呼你？", value="洛")
+    target_user_name = st.text_input("你想讓她們如何稱呼你？", value="洛")
+    st.write("---")
+    char_choice = st.radio("選擇通訊對象：", ("月見八千代 (Yachiyo)", "酒寄彩葉 (Iroha)"))
     
     st.write("---")
-    st.write("📷 **上傳八千代的樣子**")
-    # 提供圖庫上傳功能
-    uploaded_file = st.file_uploader("點擊上傳或從相簿選擇", type=["png", "jpg", "jpeg"])
+    st.subheader("🖼️ 角色形象管理")
+    up_yachiyo = st.file_uploader("上傳八千代照片", type=["png", "jpg", "jpeg"], key="up_yachiyo")
+    up_iroha = st.file_uploader("上傳彩葉照片", type=["png", "jpg", "jpeg"], key="up_iroha")
     
-    # 預設頭像
-    default_avatar = "https://api.dicebear.com/7.x/bottts/svg?seed=Yachiyo"
-    yachiyo_avatar = uploaded_file if uploaded_file is not None else default_avatar
+    if char_choice == "月見八千代 (Yachiyo)":
+        current_avatar = up_yachiyo if up_yachiyo else "https://api.dicebear.com/7.x/bottts/svg?seed=Yachiyo"
+    else:
+        current_avatar = up_iroha if up_iroha else "https://api.dicebear.com/7.x/adventurer/svg?seed=Iroha"
 
     st.write("---")
     if st.button("🔄 重置回憶"):
         st.session_state.messages = []
         st.session_state.chat_session = None
         st.rerun()
-    st.caption("小撇步：上傳一張美美的八千代照片，讓聊天更有感覺！")
 
-# --- 5. 初始化 Session 狀態 ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "current_model" not in st.session_state:
-    st.session_state.current_model = MODEL_3
-
-if "last_name" not in st.session_state or st.session_state.last_name != target_user_name:
+# --- 6. 核心連線邏輯 ---
+if st.session_state.chat_session is None or st.session_state.get("last_char") != char_choice or st.session_state.get("last_name") != target_user_name:
+    st.session_state.last_char = char_choice
     st.session_state.last_name = target_user_name
-    current_full_setting = get_yachiyo_setting(target_user_name)
+    st.session_state.messages = []
+    
+    current_setting = get_yachiyo_setting(target_user_name) if char_choice == "月見八千代 (Yachiyo)" else get_iroha_setting(target_user_name)
     
     model = genai.GenerativeModel(
         model_name=st.session_state.current_model,
-        system_instruction=current_full_setting,
-        safety_settings=safety_config,
-        generation_config={"temperature": 0.9, "max_output_tokens": 2048, "top_p": 0.95, "top_k": 40}
+        system_instruction=current_setting,
+        safety_settings={"HARM_CATEGORY_HARASSMENT": "BLOCK_NONE", "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE", "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE", "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE"},
+        generation_config={"temperature": 0.9, "max_output_tokens": 800}
     )
-    old_history = st.session_state.chat_session.history if "chat_session" in st.session_state and st.session_state.chat_session else []
-    st.session_state.chat_session = model.start_chat(history=old_history)
+    st.session_state.chat_session = model.start_chat(history=[])
 
-# --- 6. 介面呈現 ---
+# --- 7. 介面呈現 ---
 st.title(f"你好呀，{target_user_name}")
-st.caption(f"當前模型：{st.session_state.current_model.split('/')[-1]}")
 
 for message in st.session_state.messages:
-    # 助理頭像使用上傳的檔案，使用者固定使用👤
-    active_avatar = yachiyo_avatar if message["role"] == "assistant" else "👤"
-    with st.chat_message(message["role"], avatar=active_avatar):
+    act_av = current_avatar if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=act_av):
         st.markdown(message["content"])
 
-# --- 7. 對話邏輯 ---
-if prompt := st.chat_input("傳送訊息給八千代..."):
+# --- 8. 對話處理邏輯 ---
+if prompt := st.chat_input(f"傳送訊息給 {char_choice.split(' ')[0]}..."):
+    # 記憶瘦身 (只保留最近 10 次對話防止過載)
+    if st.session_state.chat_session is not None:
+        try:
+            if len(st.session_state.chat_session.history) > 10:
+                st.session_state.chat_session.history = st.session_state.chat_session.history[-10:]
+        except: pass
+
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar="👤"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar=yachiyo_avatar):
-        response_placeholder = st.empty()
-        full_response = ""
-        
+    with st.chat_message("assistant", avatar=current_avatar):
+        res_placeholder = st.empty()
         try:
             response = st.session_state.chat_session.send_message(prompt)
-            full_response = response.text if response.text else "(八千代溫柔地微笑著，沒有說話...)"
+            full_response = response.text
         except Exception as e:
             if st.session_state.current_model == MODEL_3:
-                st.toast("次數耗盡，切換至 2.0 模型...")
                 st.session_state.current_model = MODEL_2
-                model = genai.GenerativeModel(
-                    model_name=MODEL_2,
-                    system_instruction=get_yachiyo_setting(target_user_name),
-                    safety_settings=safety_config
-                )
-                st.session_state.chat_session = model.start_chat(history=st.session_state.chat_session.history)
-                response = st.session_state.chat_session.send_message(prompt)
-                full_response = response.text
+                st.toast("3.0 次數耗盡，切換至 2.0 模式...")
+                time.sleep(1)
+                st.rerun()
             else:
-                full_response = f"{target_user_name}...次數真的用盡了，我先去休息一下喔。"
+                full_response = "（月讀空間連線不穩...請確認 Secrets 設定或明早再試喔。）"
 
-        response_placeholder.markdown(full_response)
+        res_placeholder.markdown(full_response)
         st.session_state.messages.append({"role": "assistant", "content": full_response})
