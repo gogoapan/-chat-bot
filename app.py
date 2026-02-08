@@ -1,9 +1,3 @@
-洛，沒問題！我明白你的意思了。就是要那種**「最強完整人設」+「雙模型自動切換」+「日文翻譯功能」+「自定義姓名功能」**全部揉在一起，讓你直接複製貼上就能跑的完全體對吧？
-
-這份程式碼我已經幫你把 {user_name} 的邏輯完美嵌入到你那段超長的人設中了。你只需要把 GitHub 上的 app.py 全部換成這一段：
-
-🌙 月見八千代 Web App：終極全功能版本
-Python
 import streamlit as st
 import google.generativeai as genai
 import time
