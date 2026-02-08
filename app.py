@@ -3,7 +3,7 @@ import google.generativeai as genai
 import time
 
 # --- 1. 網頁視覺設定 ---
-st.set_page_config(page_title="月讀空間 - 雙生連結", page_icon="🌌")
+st.set_page_config(page_title=" 月讀空間 ", page_icon="🌌")
 
 st.markdown("""
     <style>
@@ -178,7 +178,7 @@ if prompt := st.chat_input(f"傳送訊息給 {char_choice.split(' ')[0]}..."):
                 time.sleep(1)
                 st.rerun()
             else:
-                full_response = "（月讀空間連線不穩...請確認 Secrets 設定或明早再試喔。）"
+                full_response = "（月讀空間連線不穩...使用次數不足...明早再試喔。）"
 
         res_placeholder.markdown(full_response)
         st.session_state.messages.append({"role": "assistant", "content": full_response})
