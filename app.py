@@ -1,6 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 import time
+from PIL import Image
 
 # --- 1. 網頁視覺設定 ---
 st.set_page_config(page_title="月讀空間 - 月見八千代", page_icon="🌙")
@@ -20,8 +21,7 @@ genai.configure(api_key=MY_KEY, transport='rest')
 MODEL_3 = 'models/gemini-3-flash-preview'
 MODEL_2 = 'models/gemini-2.0-flash'
 
-# --- 3. 完整人設框架 (包含自定義姓名變數) ---
-# 注意：這裡使用了 python 的 f-string 佔位符 {user_name}
+# --- 3. 完整人設框架 (完全保留所有背景故事) ---
 def get_yachiyo_setting(user_name):
     return f"""
 你現在必須完全化身為《超時空輝耀姬》中的靈魂人物——月見八千代（Tsukimi Yachiyo）。
@@ -81,17 +81,26 @@ safety_config = {
     "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
 }
 
-# --- 4. 側邊欄設定 (使用者自定義名字) ---
+# --- 4. 側邊欄設定 (圖庫上傳功能) ---
 with st.sidebar:
     st.title("🌙 月讀控制台")
-    # 讓使用者輸入名字，預設為「洛」
     target_user_name = st.text_input("你想讓八千代如何稱呼你？", value="洛")
+    
+    st.write("---")
+    st.write("📷 **上傳八千代的樣子**")
+    # 提供圖庫上傳功能
+    uploaded_file = st.file_uploader("點擊上傳或從相簿選擇", type=["png", "jpg", "jpeg"])
+    
+    # 預設頭像
+    default_avatar = "https://api.dicebear.com/7.x/bottts/svg?seed=Yachiyo"
+    yachiyo_avatar = uploaded_file if uploaded_file is not None else default_avatar
+
     st.write("---")
     if st.button("🔄 重置回憶"):
         st.session_state.messages = []
         st.session_state.chat_session = None
         st.rerun()
-    st.caption("建議：你可以換個名字試試看她的反應喔！")
+    st.caption("小撇步：上傳一張美美的八千代照片，讓聊天更有感覺！")
 
 # --- 5. 初始化 Session 狀態 ---
 if "messages" not in st.session_state:
@@ -99,7 +108,6 @@ if "messages" not in st.session_state:
 if "current_model" not in st.session_state:
     st.session_state.current_model = MODEL_3
 
-# 檢測名字是否更換，若更換則更新人設
 if "last_name" not in st.session_state or st.session_state.last_name != target_user_name:
     st.session_state.last_name = target_user_name
     current_full_setting = get_yachiyo_setting(target_user_name)
@@ -110,7 +118,6 @@ if "last_name" not in st.session_state or st.session_state.last_name != target_u
         safety_settings=safety_config,
         generation_config={"temperature": 0.9, "max_output_tokens": 2048, "top_p": 0.95, "top_k": 40}
     )
-    # 繼承對話紀錄
     old_history = st.session_state.chat_session.history if "chat_session" in st.session_state and st.session_state.chat_session else []
     st.session_state.chat_session = model.start_chat(history=old_history)
 
@@ -119,16 +126,18 @@ st.title(f"你好呀，{target_user_name}")
 st.caption(f"當前模型：{st.session_state.current_model.split('/')[-1]}")
 
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    # 助理頭像使用上傳的檔案，使用者固定使用👤
+    active_avatar = yachiyo_avatar if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=active_avatar):
         st.markdown(message["content"])
 
 # --- 7. 對話邏輯 ---
-if prompt := st.chat_input("輸入訊息..."):
+if prompt := st.chat_input("傳送訊息給八千代..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="👤"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=yachiyo_avatar):
         response_placeholder = st.empty()
         full_response = ""
         
@@ -136,11 +145,9 @@ if prompt := st.chat_input("輸入訊息..."):
             response = st.session_state.chat_session.send_message(prompt)
             full_response = response.text if response.text else "(八千代溫柔地微笑著，沒有說話...)"
         except Exception as e:
-            err_msg = str(e)
             if st.session_state.current_model == MODEL_3:
-                st.toast("3.0 次數不夠，自動切換至 2.0...")
+                st.toast("次數耗盡，切換至 2.0 模型...")
                 st.session_state.current_model = MODEL_2
-                # 切換模型並保持人設與名字
                 model = genai.GenerativeModel(
                     model_name=MODEL_2,
                     system_instruction=get_yachiyo_setting(target_user_name),
@@ -150,7 +157,7 @@ if prompt := st.chat_input("輸入訊息..."):
                 response = st.session_state.chat_session.send_message(prompt)
                 full_response = response.text
             else:
-                full_response = "洛...月讀空間的數據好亂，我先去休息一下喔。(次數不足了)"
+                full_response = f"{target_user_name}...次數真的用盡了，我先去休息一下喔。"
 
         response_placeholder.markdown(full_response)
         st.session_state.messages.append({"role": "assistant", "content": full_response})
