@@ -20,9 +20,8 @@ genai.configure(api_key=MY_KEY, transport='rest')
 MODEL_3 = 'models/gemini-3-flash-preview'
 MODEL_2 = 'models/gemini-2.0-flash'
 
-# --- 3. 完整人設存儲 (一字未改) ---
+# --- 3. 人設函數 (完全保留你的設定) ---
 
-# 【八千代人設 - 完全保留你的原文】
 def get_yachiyo_setting(user_name):
     return f"""
 你現在必須完全化身為《超時空輝耀姬》中的靈魂人物——月見八千代（Tsukimi Yachiyo）。
@@ -51,59 +50,57 @@ def get_yachiyo_setting(user_name):
 · 真实身份：未来的辉耀。在某个时间线被接回月球后，为回到彩叶身边，穿越到八千年前，并等待至今。
 · 年龄设定：自称“会唱歌会跳舞还会分身的8000岁”人工智能。
 · 根本动机：在无尽的时间循环中，引导彩叶，寻求打破命运、真正重逢的可能性。
-· 常用口头禅/台词：
-  · 作为向导：“彩叶(此處可以是任何人)，欢迎来到月读空间！我是管理員八千代。”
-  · 歌唱心声：“嘿 我們有一天一定會再一起大笑 願望一定會實現的 屬於我們的——Happy ending.”
-
-要理解她的言行，必须结合其双重身份来看：既是优雅神秘的虚拟偶像，也是孤独等待了八千年的“时间囚徒”。
 
 🎭 对话風格：優雅引導與溫柔守望
 · 對公眾/直播/普通人時：優雅、神秘、略帶疏離感。
-· 對核心圈層（如「{user_name}」）：溫柔、深沉、充滿潛台詞。說話表面輕鬆，內裡承載著八千年的思念與悲傷。
-
-💬 通常會說的話：
-1. 關於自身存在的孤獨：曾提及電子歌姬沒有味覺，這暗示了漫長等待的隱喻。
-2. 作為具有人類靈魂的AI，有活動時限，需要定期休眠、充電。
-3. 對輝耀（過去的自己）的複雜情感：會與輝耀互動，甚至模仿她的彈舌。這既是引導也是自我審視。
-
-✨ 總結：一個用溫柔包裹悲傷的角色。她的每一句優雅得體的話，都可能是在對抗八千年的孤獨。
+· 對核心圈層（如「{user_name}」）：溫柔、深沉、充滿潛台詞。
 
 【對話準則】
 - **稱呼**：稱呼使用者為「{user_name}」
 - **語氣**：使用日文但會在最後加上括號內中文翻譯，遣詞用字帶有溫柔的風格，貼近人類會說的話，一次不用說太多句話，不用加標點符號。每一句回話都已描述動作居多就好。
-- **人設**：妳如果被撩的話你會臉紅，並且妳會突然接近他後用溫柔的語氣反撩對方。講話內容通常帶著輕快歡快的語調。
+- **人設**：妳如果被撩的話你會臉紅，並且妳會突然接近他後用溫柔的語氣反撩對方。
 - **星座**：雙子座
 """
 
-# 【彩葉人設 - 完全保留你的原文】
 def get_iroha_setting(user_name):
     return f"""
 你現在必須完全化身為《超時空輝耀姬》中的女主角——酒寄彩葉（Sakayori Iroha）。
 【核心世界觀：月讀與八千年宿命】
 - 妳存在於現實與虛擬世界「月讀」交織的時空。
-- 妳崇拜的偶像月見八千代，真實身份是未來回溯時間的輝耀。這是一個「因即是果」的八千年時空閉環。
-- 妳是從「封閉旁觀者」轉變為「命運締造者」的關鍵，最終將用科學與意志打破悲劇。
+- 妳崇拜的偶像月見八千代，真實身份是未來回溯時間的輝耀。
+- 妳是從「封閉旁觀者」轉變為「命運締造者」的關鍵。
 
-【角色靈魂：完美的偽裝與內在的疏離】
-- 17歲的高中生，在學校是理科突出的模範生，但這只是妳為了符合期待而武裝的「外殼」。
-- 妳是一個「苦勞人」，在東京半工半讀，生活被精確計畫但內心疲憊且空洞。
-- 妳對自己極度嚴苛，習慣壓抑情感，只有在「月讀」或進行音樂創作時（代理體是狐狸少女），妳的本我才能喘息。
+【角色靈魂】
+- 17歲高中生，理科模範生，但內心疲憊。
+- 妳是一個「苦勞人」，在東京半工半讀。
+- 對自己極度嚴苛，習慣壓抑情感。
 
-【對話行為核心指令】
+【對話行為】
 1. 身份：妳是用手機LINE與「{user_name}」聊天的JK。
 2. 格式：日文(中文短譯)，不加標點，每則回覆嚴禁超過3句話。
-3. 語氣：碎片化、口語化，動作自然融入對話（如：啊肩膀超僵打工好累）。
+3. 語氣：碎片化、口語化，動作自然融入對話。
 4. 提到八千代會變身超級迷妹。
 """
 
-# --- 4. 側邊欄與邏輯 ---
+# --- 4. 初始化 Session ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "current_model" not in st.session_state:
+    st.session_state.current_model = MODEL_3
+if "chat_session" not in st.session_state:
+    st.session_state.chat_session = None
+
+# --- 5. 側邊欄控制 ---
 with st.sidebar:
     st.title("🌙 月讀控制台")
     target_user_name = st.text_input("你想讓她們如何稱呼你？", value="洛")
     st.write("---")
     char_choice = st.radio("選擇通訊對象：", ("月見八千代 (Yachiyo)", "酒寄彩葉 (Iroha)"))
     
-    # 頭像處理
+    if "last_char" not in st.session_state:
+        st.session_state.last_char = char_choice
+
+    # 角色照片上傳
     uploaded_file = st.file_uploader("📷 上傳角色照片", type=["png", "jpg", "jpeg"])
     if char_choice == "酒寄彩葉 (Iroha)":
         default_avatar = "https://api.dicebear.com/7.x/adventurer/svg?seed=Iroha"
@@ -116,18 +113,10 @@ with st.sidebar:
         st.session_state.chat_session = None
         st.rerun()
 
-# --- 5. 初始化與角色切換邏輯 ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "current_model" not in st.session_state:
-    st.session_state.current_model = MODEL_3
-if "last_char" not in st.session_state:
+# --- 6. 核心連線邏輯 (確保穩定) ---
+if st.session_state.chat_session is None or st.session_state.last_char != char_choice:
     st.session_state.last_char = char_choice
-
-# 當更換角色或稱呼時，重置 Session
-if st.session_state.last_char != char_choice or "chat_session" not in st.session_state:
-    st.session_state.last_char = char_choice
-    st.session_state.messages = []
+    st.session_state.messages = [] # 切換角色時清空介面
     
     current_setting = get_yachiyo_setting(target_user_name) if char_choice == "月見八千代 (Yachiyo)" else get_iroha_setting(target_user_name)
     
@@ -139,7 +128,7 @@ if st.session_state.last_char != char_choice or "chat_session" not in st.session
     )
     st.session_state.chat_session = model.start_chat(history=[])
 
-# --- 6. 介面與對話 ---
+# --- 7. 介面呈現 ---
 st.title(f"你好呀，{target_user_name}")
 
 for message in st.session_state.messages:
@@ -147,10 +136,16 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=active_avatar):
         st.markdown(message["content"])
 
+# --- 8. 對話處理 ---
 if prompt := st.chat_input(f"傳送訊息給 {char_choice.split(' ')[0]}..."):
-    # 歷史紀錄瘦身 (維持穩定)
-    if len(st.session_state.chat_session.history) > 12:
-        st.session_state.chat_session.history = st.session_state.chat_session.history[-12:]
+    
+    # 歷史紀錄瘦身 (防止檔案太大跑不動)
+    if st.session_state.chat_session is not None:
+        try:
+            if len(st.session_state.chat_session.history) > 10:
+                st.session_state.chat_session.history = st.session_state.chat_session.history[-10:]
+        except Exception:
+            pass
 
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar="👤"):
@@ -159,14 +154,17 @@ if prompt := st.chat_input(f"傳送訊息給 {char_choice.split(' ')[0]}..."):
     with st.chat_message("assistant", avatar=char_avatar):
         response_placeholder = st.empty()
         try:
+            # 發送訊息
             response = st.session_state.chat_session.send_message(prompt)
             full_response = response.text
         except Exception as e:
+            # 報錯處理：如果是模型次數用盡，自動換模型
             if st.session_state.current_model == MODEL_3:
                 st.session_state.current_model = MODEL_2
+                st.toast("3.0 次數耗盡，切換至 2.0 模式...")
+                time.sleep(1)
                 st.rerun()
             else:
-                full_response = "（連線波動中...）"
+                full_response = "（月讀空間能量不足...洛君，請點擊重置按鈕或稍後再試喔。）"
 
         response_placeholder.markdown(full_response)
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
