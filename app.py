@@ -141,7 +141,7 @@ if st.session_state.chat_session is None or st.session_state.get("last_char") !=
         model_name=st.session_state.current_model,
         system_instruction=current_setting,
         safety_settings={"HARM_CATEGORY_HARASSMENT": "BLOCK_NONE", "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE", "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE", "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE"},
-        generation_config={"temperature": 0.9, "max_output_tokens": 800}
+        generation_config={"temperature": 1.0, "max_output_tokens": 1500}
     )
     st.session_state.chat_session = model.start_chat(history=[])
 
